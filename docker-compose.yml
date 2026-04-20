@@ -206,6 +206,35 @@ services:
       api:
         condition: service_started
 
+  procurement-agent:
+    build:
+      context: ./services/procurement-agent
+      target: dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kama:kama_dev@timescaledb:5432/kama_energy
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_ORDERS_CONFIRMED: kama.orders.confirmed
+      KAFKA_TOPIC_PROCUREMENT_ORDERED: kama.procurement.ordered
+      KAFKA_TOPIC_PROCUREMENT_DELIVERED: kama.procurement.delivered
+      KAFKA_GROUP_ID: kama-procurement-agent
+      KAMA_NET_URL: ${KAMA_NET_URL:-https://nixakeaiibzhesdwtelw.supabase.co}
+      KAMA_NET_API_KEY: ${KAMA_NET_API_KEY:-}
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-puk@kama-power.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-puk@kama-power.com}
+      DELIVERY_WARN_DAYS: "2"
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./services/procurement-agent:/app
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
 volumes:
   tsdb_data:
   emqx_data:
