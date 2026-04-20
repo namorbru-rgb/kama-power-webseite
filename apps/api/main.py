@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 import structlog
 
 from config import settings
-from routers import dashboard, grid_signals, sites, vzev
+from routers import dashboard, grid_signals, projects, sites, vzev
 
 log = structlog.get_logger()
 
@@ -40,6 +40,7 @@ app.include_router(sites.router)
 app.include_router(grid_signals.router)
 app.include_router(vzev.router)
 app.include_router(dashboard.router)
+app.include_router(projects.router)
 
 
 @app.get("/health")

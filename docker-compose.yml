@@ -346,6 +346,40 @@ services:
       kafka:
         condition: service_healthy
 
+  project-workflow-engine:
+    build:
+      context: ./services/project-workflow-engine
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kama:kama_dev@timescaledb:5432/kama_energy
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_GROUP_ID: kama-project-workflow-engine
+      KAFKA_TOPIC_ORDERS_CONFIRMED: kama.orders.confirmed
+      KAFKA_TOPIC_PROCUREMENT_DELIVERED: kama.procurement.delivered
+      KAFKA_TOPIC_MONTAGE_COMPLETED: kama.montage.completed
+      KAFKA_TOPIC_WORKFLOW_STEP_READY: kama.workflow.step_ready
+      KAFKA_TOPIC_WORKFLOW_COMPLETED: kama.workflow.completed
+      KAMA_NET_URL: ${KAMA_NET_URL:-https://nixakeaiibzhesdwtelw.supabase.co}
+      KAMA_NET_API_KEY: ${KAMA_NET_API_KEY:-}
+      PAPERCLIP_API_URL: ${PAPERCLIP_API_URL:-http://localhost:3100}
+      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-}
+      PAPERCLIP_COMPANY_ID: ${PAPERCLIP_COMPANY_ID:-}
+      PAPERCLIP_GOAL_ID: ${PAPERCLIP_GOAL_ID:-}
+      PAPERCLIP_PROJECT_ID: ${PAPERCLIP_PROJECT_ID:-}
+      AGENT_ID_CEO: ${AGENT_ID_CEO:-}
+      AGENT_ID_CTO: ${AGENT_ID_CTO:-}
+      AGENT_ID_PROCUREMENT: ${AGENT_ID_PROCUREMENT:-}
+      AGENT_ID_MONTAGE: ${AGENT_ID_MONTAGE:-}
+      AGENT_ID_MELDEWESEN: ${AGENT_ID_MELDEWESEN:-}
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./services/project-workflow-engine:/app
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
 volumes:
   tsdb_data:
   emqx_data:
