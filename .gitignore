@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Go
+*.exe
+/services/edge-agent/edge-agent
+/services/ingestor/ingestor
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.env.local
+
+# Environment files (never commit secrets)
+.env
+.env.dev
+.env.prod
+.env.*.local
+!.env.example
+
+# SQLite buffers
+*.db
+*.db-shm
+*.db-wal
+
+# Docker
+.docker/
+
+# IDE
+.idea/
+.vscode/
+*.swp

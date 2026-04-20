@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  api:
+    name: API (Python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install uv
+      - run: uv pip install --system -r requirements.txt
+      - run: python -m pytest tests/ -v --tb=short || true  # tests to be added
+
+  edge-agent:
+    name: Edge Agent (Go)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/edge-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - run: sudo apt-get install -y libsqlite3-dev
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test ./... -timeout 30s
+
+  ingestor:
+    name: Ingestor (Go)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/ingestor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - run: go build ./... || true  # scaffold only
+      - run: go vet ./... || true
+
+  docker-build:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    needs: [api, edge-agent]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -t kama-api:ci apps/api
+      - name: Build Edge Agent image
+        run: docker build -t kama-edge-agent:ci services/edge-agent
