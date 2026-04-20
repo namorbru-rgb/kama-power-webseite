@@ -380,6 +380,35 @@ services:
       kafka:
         condition: service_healthy
 
+  lager-logistik-agent:
+    build:
+      context: ./services/lager-logistik-agent
+      target: dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kama:kama_dev@timescaledb:5432/kama_energy
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_GROUP_ID: kama-lager-logistik-agent
+      KAFKA_TOPIC_PROCUREMENT_ORDERED: kama.procurement.ordered
+      KAFKA_TOPIC_PROCUREMENT_DELIVERED: kama.procurement.delivered
+      KAFKA_TOPIC_COMM_REPLY: kama.comm.reply_received
+      KAFKA_TOPIC_COMM_SEND: kama.comm.send_request
+      KAFKA_TOPIC_LAGER_EINGANG: kama.lager.eingang_bestaetigt
+      KAFKA_TOPIC_LAGER_BESTAND: kama.lager.bestand_aktualisiert
+      KAMA_NET_URL: ${KAMA_NET_URL:-https://nixakeaiibzhesdwtelw.supabase.co}
+      KAMA_NET_API_KEY: ${KAMA_NET_API_KEY:-}
+      # "Yasin:telegram_chat_id,Marko:telegram_chat_id"
+      WAREHOUSE_EMPLOYEE_CONTACTS: ${WAREHOUSE_EMPLOYEE_CONTACTS:-}
+      CONFIRMATION_KEYWORDS: ${CONFIRMATION_KEYWORDS:-ja,ok,bestätigt,bestaetigt,erledigt,done,geliefert,angekommen,yes}
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./services/lager-logistik-agent:/app
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
   dashboard:
     build:
       context: ./apps/dashboard
