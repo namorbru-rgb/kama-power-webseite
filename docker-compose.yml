@@ -280,6 +280,43 @@ services:
       kafka:
         condition: service_healthy
 
+  sales-lead-agent:
+    build:
+      context: ./services/sales-lead-agent
+      target: dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kama:kama_dev@timescaledb:5432/kama_energy
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_GROUP_ID: kama-sales-lead-agent
+      KAFKA_TOPIC_LEADS_INBOUND: kama.leads.inbound
+      KAFKA_TOPIC_COMM_REPLY: kama.comm.reply_received
+      KAFKA_TOPIC_LEAD_QUALIFIED: kama.sales.lead_qualified
+      KAFKA_TOPIC_OFFER_SENT: kama.sales.offer_sent
+      KAFKA_TOPIC_ORDERS_CONFIRMED: kama.orders.confirmed
+      KAFKA_TOPIC_COMM_SEND: kama.comm.send_request
+      KAMA_NET_URL: ${KAMA_NET_URL:-https://nixakeaiibzhesdwtelw.supabase.co}
+      KAMA_NET_API_KEY: ${KAMA_NET_API_KEY:-}
+      SMTP_HOST: ${SMTP_HOST:-mail.kama-power.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-puk@kama-power.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-puk@kama-power.com}
+      MIN_QUOTE_VALUE_CHF: ${MIN_QUOTE_VALUE_CHF:-5000}
+      SERVED_CANTONS: ${SERVED_CANTONS:-}
+      FOLLOWUP_DAYS_1: ${FOLLOWUP_DAYS_1:-7}
+      FOLLOWUP_DAYS_2: ${FOLLOWUP_DAYS_2:-14}
+      QUOTE_VALIDITY_DAYS: ${QUOTE_VALIDITY_DAYS:-30}
+      SOLAR_PRICE_PER_KWP_CHF: ${SOLAR_PRICE_PER_KWP_CHF:-2800}
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./services/sales-lead-agent:/app
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
   montage-agent:
     build:
       context: ./services/montage-agent
