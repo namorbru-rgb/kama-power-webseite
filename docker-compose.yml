@@ -235,6 +235,51 @@ services:
       kafka:
         condition: service_healthy
 
+  communication-agent:
+    build:
+      context: ./services/communication-agent
+      target: dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kama:kama_dev@timescaledb:5432/kama_energy
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_GROUP_ID: kama-communication-agent
+      KAFKA_TOPIC_COMM_SEND: kama.comm.send_request
+      KAFKA_TOPIC_COMM_SENT: kama.comm.message_sent
+      KAFKA_TOPIC_COMM_REPLY: kama.comm.reply_received
+      KAFKA_TOPIC_COMM_SOP: kama.comm.sop_created
+      KAFKA_TOPIC_PROCUREMENT_ORDERED: kama.procurement.ordered
+      KAFKA_TOPIC_PROCUREMENT_DELIVERED: kama.procurement.delivered
+      SMTP_HOST: ${SMTP_HOST:-mail.kama-power.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-puk@kama-power.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-puk@kama-power.com}
+      IMAP_HOST: ${IMAP_HOST:-mail.kama-power.com}
+      IMAP_PORT: ${IMAP_PORT:-993}
+      IMAP_USER: ${IMAP_USER:-puk@kama-power.com}
+      IMAP_PASSWORD: ${IMAP_PASSWORD:-}
+      IMAP_POLL_INTERVAL_SEC: ${IMAP_POLL_INTERVAL_SEC:-60}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_ROMAN_CHAT_ID: ${TELEGRAM_ROMAN_CHAT_ID:-}
+      TELEGRAM_GROUP_CHAT_ID: ${TELEGRAM_GROUP_CHAT_ID:-}
+      KAMA_NET_URL: ${KAMA_NET_URL:-https://nixakeaiibzhesdwtelw.supabase.co}
+      KAMA_NET_API_KEY: ${KAMA_NET_API_KEY:-}
+      PAPERCLIP_API_URL: ${PAPERCLIP_API_URL:-http://localhost:3100}
+      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-}
+      PAPERCLIP_COMPANY_ID: ${PAPERCLIP_COMPANY_ID:-}
+      PAPERCLIP_AGENT_ID: ${PAPERCLIP_AGENT_ID:-}
+      PAPERCLIP_DEFAULT_PROJECT_ID: ${PAPERCLIP_DEFAULT_PROJECT_ID:-}
+      PAPERCLIP_DEFAULT_GOAL_ID: ${PAPERCLIP_DEFAULT_GOAL_ID:-}
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./services/communication-agent:/app
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
 volumes:
   tsdb_data:
   emqx_data:
