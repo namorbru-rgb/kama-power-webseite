@@ -1,0 +1,82 @@
+{
+  "type": "record",
+  "name": "GridSignal",
+  "namespace": "energy.kama.grid",
+  "doc": "Canonical, DSO-agnostic grid signal for the KAMA optimization engine. Produced to topic grid.normalized by the grid-normalizer service.",
+  "fields": [
+    {
+      "name": "timestamp",
+      "type": "string",
+      "doc": "ISO 8601 UTC timestamp marking the start of the measurement interval (e.g. 2024-01-15T10:00:00+00:00)"
+    },
+    {
+      "name": "dso_id",
+      "type": "string",
+      "doc": "DSO identifier — ENTSO-E EIC code (e.g. 10YCH-SWISSGRIDC) or internal short-name for non-EIC sources"
+    },
+    {
+      "name": "signal_type",
+      "type": {
+        "type": "enum",
+        "name": "SignalType",
+        "symbols": [
+          "IMBALANCE_PRICE",
+          "TARIFF",
+          "LOAD",
+          "CAPACITY",
+          "CONGESTION",
+          "FREQUENCY",
+          "GENERATION"
+        ],
+        "doc": "Semantic type of the grid signal"
+      }
+    },
+    {
+      "name": "value",
+      "type": "double",
+      "doc": "Numeric measurement value in the declared unit"
+    },
+    {
+      "name": "unit",
+      "type": "string",
+      "doc": "Physical unit, e.g. MW, EUR/MWh, CHF/kWh, Hz, %"
+    },
+    {
+      "name": "location_eic",
+      "type": "string",
+      "doc": "ENTSO-E bidding zone or grid node EIC code (e.g. 10YCH-SWISSGRIDC)"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "Data origin identifier: entso-e | swissgrid | ewz | bkw | elcom"
+    },
+    {
+      "name": "quality",
+      "type": {
+        "type": "enum",
+        "name": "DataQuality",
+        "symbols": ["measured", "estimated", "forecast"],
+        "doc": "Confidence / provenance of the value"
+      }
+    },
+    {
+      "name": "resolution",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "ISO 8601 duration string for the measurement interval, e.g. PT15M, PT60M, P1D"
+    },
+    {
+      "name": "period_end",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "ISO 8601 UTC timestamp marking the end of the measurement interval"
+    },
+    {
+      "name": "meta",
+      "type": ["null", {"type": "map", "values": "string"}],
+      "default": null,
+      "doc": "Optional source-specific metadata (e.g. psr_type for generation mix, tariff zone)"
+    }
+  ]
+}

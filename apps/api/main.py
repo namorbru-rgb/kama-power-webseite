@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 import structlog
 
 from config import settings
-from routers import sites
+from routers import grid_signals, sites
 
 log = structlog.get_logger()
 
@@ -37,6 +37,7 @@ app.add_middleware(
 )
 
 app.include_router(sites.router)
+app.include_router(grid_signals.router)
 
 
 @app.get("/health")

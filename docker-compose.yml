@@ -121,6 +121,48 @@ services:
       timeout: 5s
       retries: 10
 
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.1
+    restart: unless-stopped
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/subjects"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  grid-normalizer:
+    build:
+      context: ./services/grid-normalizer
+      target: dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kama:kama_dev@timescaledb:5432/kama_energy
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_ENTSO_E_RAW: grid.entso-e.raw
+      KAFKA_TOPIC_NORMALIZED: grid.normalized
+      KAFKA_GROUP_ID: kama-grid-normalizer
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      BATCH_SIZE: "200"
+      BATCH_FLUSH_INTERVAL_SEC: "5.0"
+    volumes:
+      - ./services/grid-normalizer:/app
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+
   entso-e-ingestor:
     build:
       context: ./services/entso-e-ingestor
