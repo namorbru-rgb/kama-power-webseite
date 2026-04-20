@@ -100,7 +100,51 @@ services:
       kafka:
         condition: service_healthy
 
+  influxdb:
+    image: influxdb:2.7
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: kama
+      DOCKER_INFLUXDB_INIT_PASSWORD: kama_dev_password
+      DOCKER_INFLUXDB_INIT_ORG: kama
+      DOCKER_INFLUXDB_INIT_BUCKET: grid_switzerland
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: kama_dev_token
+      DOCKER_INFLUXDB_INIT_RETENTION: 2y
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  entso-e-ingestor:
+    build:
+      context: ./services/entso-e-ingestor
+      target: dev
+    restart: unless-stopped
+    environment:
+      ENTSOE_SECURITY_TOKEN: ${ENTSOE_SECURITY_TOKEN:-}
+      ENTSOE_AREA_EIC: 10YCH-SWISSGRIDC
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_GRID: grid.entso-e.raw
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: kama_dev_token
+      INFLUX_ORG: kama
+      INFLUX_BUCKET: grid_switzerland
+    volumes:
+      - ./services/entso-e-ingestor:/app
+    depends_on:
+      kafka:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+
 volumes:
   tsdb_data:
   emqx_data:
   kafka_data:
+  influxdb_data:
