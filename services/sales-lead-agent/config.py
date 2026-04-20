@@ -27,12 +27,19 @@ class Settings(BaseSettings):
     kama_net_orders_table: str = "app_orders"
     kama_net_solar_calc_table: str = "app_solar_calculations"
 
-    # SMTP (email sending via puk@kama-power.com)
-    smtp_host: str = "mail.kama-power.com"
-    smtp_port: int = 587
-    smtp_user: str = "puk@kama-power.com"
+    # SMTP (email sending via verkauf@kama-power.com — Hostinger)
+    smtp_host: str = "smtp.hostinger.com"
+    smtp_port: int = 465
+    smtp_user: str = "verkauf@kama-power.com"
     smtp_password: str = ""
-    smtp_from: str = "puk@kama-power.com"
+    smtp_from: str = "verkauf@kama-power.com"
+
+    # IMAP (email receiving via verkauf@kama-power.com — Hostinger)
+    imap_host: str = "imap.hostinger.com"
+    imap_port: int = 993
+    imap_user: str = "verkauf@kama-power.com"
+    imap_password: str = ""
+    imap_poll_interval_sec: int = 60
 
     # Lead qualification thresholds
     # Minimum estimated value to qualify (CHF)

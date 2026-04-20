@@ -30,6 +30,20 @@ class Settings(BaseSettings):
     paperclip_goal_id: str = ""         # company-level goal for all step issues
     paperclip_project_id: str = ""      # Paperclip project for all step issues
 
+    # SMTP — outbound notifications (betrieb@kama-power.com — Hostinger)
+    smtp_host: str = "smtp.hostinger.com"
+    smtp_port: int = 465
+    smtp_user: str = "betrieb@kama-power.com"
+    smtp_password: str = ""
+    smtp_from: str = "betrieb@kama-power.com"
+
+    # IMAP — inbound (betrieb@kama-power.com — Hostinger)
+    imap_host: str = "imap.hostinger.com"
+    imap_port: int = 993
+    imap_user: str = "betrieb@kama-power.com"
+    imap_password: str = ""
+    imap_poll_interval_sec: int = 60
+
     # Agent IDs per role (resolved at startup from Paperclip API)
     # If not set, the engine falls back to role-based lookup
     agent_id_ceo: str = ""

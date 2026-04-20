@@ -19,17 +19,17 @@ class Settings(BaseSettings):
     kafka_topic_procurement_ordered: str = "kama.procurement.ordered"
     kafka_topic_procurement_delivered: str = "kama.procurement.delivered"
 
-    # SMTP — outbound (himalaya / puk@kama-power.com)
-    smtp_host: str = "mail.kama-power.com"
-    smtp_port: int = 587
-    smtp_user: str = "puk@kama-power.com"
+    # SMTP — outbound (verwaltung@kama-power.com — Hostinger)
+    smtp_host: str = "smtp.hostinger.com"
+    smtp_port: int = 465
+    smtp_user: str = "verwaltung@kama-power.com"
     smtp_password: str = ""
-    smtp_from: str = "puk@kama-power.com"
+    smtp_from: str = "verwaltung@kama-power.com"
 
-    # IMAP — inbound polling
-    imap_host: str = "mail.kama-power.com"
+    # IMAP — inbound polling (verwaltung@kama-power.com — Hostinger)
+    imap_host: str = "imap.hostinger.com"
     imap_port: int = 993
-    imap_user: str = "puk@kama-power.com"
+    imap_user: str = "verwaltung@kama-power.com"
     imap_password: str = ""
     imap_poll_interval_sec: int = 60
 
