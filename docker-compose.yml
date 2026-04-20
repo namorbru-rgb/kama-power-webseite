@@ -380,6 +380,21 @@ services:
       kafka:
         condition: service_healthy
 
+  dashboard:
+    build:
+      context: ./apps/dashboard
+      args:
+        NEXT_PUBLIC_API_URL: http://api:8000
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://api:8000
+      DEFAULT_SITE_ID: ${DEFAULT_SITE_ID:-}
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_started
+
 volumes:
   tsdb_data:
   emqx_data:
