@@ -90,6 +90,10 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC_TELEMETRY: telemetry.raw
       KAFKA_GROUP_ID: kama-ingestor
+      BATCH_SIZE: "100"
+      BATCH_FLUSH_INTERVAL_SEC: "2.0"
+    volumes:
+      - ./services/ingestor:/app
     depends_on:
       timescaledb:
         condition: service_healthy

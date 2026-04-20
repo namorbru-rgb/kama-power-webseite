@@ -39,26 +39,29 @@ jobs:
       - run: go test ./... -timeout 30s
 
   ingestor:
-    name: Ingestor (Go)
+    name: Ingestor (Python)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: services/ingestor
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-python@v5
         with:
-          go-version: "1.22"
-      - run: go build ./... || true  # scaffold only
-      - run: go vet ./... || true
+          python-version: "3.12"
+      - run: pip install uv
+      - run: uv pip install --system -r requirements.txt
+      - run: python -m pytest tests/ -v --tb=short
 
   docker-build:
     name: Docker Build Check
     runs-on: ubuntu-latest
-    needs: [api, edge-agent]
+    needs: [api, edge-agent, ingestor]
     steps:
       - uses: actions/checkout@v4
       - name: Build API image
         run: docker build -t kama-api:ci apps/api
       - name: Build Edge Agent image
         run: docker build -t kama-edge-agent:ci services/edge-agent
+      - name: Build Ingestor image
+        run: docker build -t kama-ingestor:ci services/ingestor
