@@ -185,6 +185,27 @@ services:
       influxdb:
         condition: service_healthy
 
+  report-generator:
+    build:
+      context: ./services/report-generator
+      target: dev
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: http://api:8000
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-kama-reports@kama.energy}
+      REPORT_RECIPIENTS: ${REPORT_RECIPIENTS:-roman@kama.energy}
+      REPORT_SCHEDULE: ${REPORT_SCHEDULE:-0 7 * * 1}
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./services/report-generator:/app
+    depends_on:
+      api:
+        condition: service_started
+
 volumes:
   tsdb_data:
   emqx_data:
