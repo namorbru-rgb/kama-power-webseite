@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime
+import uuid
+from datetime import datetime, timezone
 from typing import Any
 
 import asyncpg
@@ -14,6 +15,8 @@ from pydantic import ValidationError
 
 from config import settings
 from engine import WorkflowEngine
+from imap_inbound import async_poll_inbox
+import memory_store
 from models import (
     MontageCompletedEvent,
     OrderConfirmedEvent,
@@ -64,8 +67,58 @@ class WorkflowConsumer:
             group=settings.kafka_group_id,
         )
 
+        # --- Memory read hook (run start) ---
+        if settings.agent_memory_enabled:
+            prior = await memory_store.read_memory(
+                supabase_url=settings.kama_net_url,
+                service_role_key=settings.supabase_service_role_key,
+                agent_id=settings.agent_memory_agent_id,
+                scope=settings.agent_memory_scope,
+                limit=settings.agent_memory_read_limit,
+            )
+            if prior:
+                log.info(
+                    "agent_memory_context_loaded",
+                    items=len(prior),
+                    top_summary=prior[0].get("summary", "") if prior else "",
+                )
+
     async def stop(self) -> None:
         self._running = False
+
+        # --- Memory write hook (run end) ---
+        if settings.agent_memory_enabled:
+            summary = (
+                f"Run ended: received={self.total_received} "
+                f"processed={self.total_processed} errors={self.total_errors}"
+            )
+            await memory_store.write_memory_item(
+                supabase_url=settings.kama_net_url,
+                service_role_key=settings.supabase_service_role_key,
+                agent_id=settings.agent_memory_agent_id,
+                kind="run_summary",
+                summary=summary,
+                scope=settings.agent_memory_scope,
+                details_json={
+                    "total_received": self.total_received,
+                    "total_processed": self.total_processed,
+                    "total_errors": self.total_errors,
+                },
+                importance=3,
+            )
+            await memory_store.write_snapshot(
+                supabase_url=settings.kama_net_url,
+                service_role_key=settings.supabase_service_role_key,
+                agent_id=settings.agent_memory_agent_id,
+                summary=summary,
+                scope=settings.agent_memory_scope,
+                items_json={
+                    "total_received": self.total_received,
+                    "total_processed": self.total_processed,
+                    "total_errors": self.total_errors,
+                },
+            )
+
         if self._consumer:
             await self._consumer.stop()
         if self._producer:
@@ -79,6 +132,7 @@ class WorkflowConsumer:
 
     async def run(self) -> None:
         assert self._consumer is not None
+        inbound_task = asyncio.create_task(self._inbound_email_loop())
         try:
             async for msg in self._consumer:
                 await self._handle(msg)
@@ -88,6 +142,12 @@ class WorkflowConsumer:
         except KafkaError as exc:
             log.error("kafka_error", exc=str(exc))
             raise
+        finally:
+            inbound_task.cancel()
+            try:
+                await inbound_task
+            except asyncio.CancelledError:
+                pass
 
     async def _handle(self, msg: Any) -> None:
         self.total_received += 1
@@ -124,3 +184,58 @@ class WorkflowConsumer:
 
         else:
             log.warning("unknown_topic", topic=topic)
+
+    async def _inbound_email_loop(self) -> None:
+        while self._running:
+            try:
+                await self._process_inbound_email()
+            except Exception as exc:
+                log.error("ops_inbound_email_loop_error", error=str(exc), exc_info=True)
+            await asyncio.sleep(settings.imap_poll_interval_sec)
+
+    async def _process_inbound_email(self) -> None:
+        rows = await async_poll_inbox()
+        for row in rows:
+            message_id = row["message_id"] or f"<ops-{uuid.uuid4()}@kama-power.com>"
+            ops_event = {
+                "event": "ops.inbound_email",
+                "message_id": message_id,
+                "in_reply_to": row["in_reply_to"],
+                "channel": "email",
+                "sender_email": row["sender_email"],
+                "subject": row["subject"],
+                "body": row["body"],
+                "received_at": row["received_at"],
+                "context": {"mailbox": settings.imap_user},
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+            await self._emit(settings.kafka_topic_ops_inbound_email, ops_event)
+
+            # Route into central comm reply topic for shared downstream handling.
+            await self._emit(
+                settings.kafka_topic_comm_reply,
+                {
+                    "event": "comm.reply_received",
+                    "message_id": message_id,
+                    "in_reply_to": row["in_reply_to"],
+                    "channel": "email",
+                    "sender_email": row["sender_email"],
+                    "body": row["body"],
+                    "received_at": row["received_at"],
+                    "context": {
+                        "source_service": "project-workflow-engine",
+                        "mailbox": settings.imap_user,
+                        "subject": row["subject"],
+                    },
+                },
+            )
+            log.info(
+                "ops_inbound_email_received",
+                sender=row["sender_email"],
+                subject=row["subject"],
+            )
+
+    async def _emit(self, topic: str, payload: dict[str, Any]) -> None:
+        assert self._producer is not None
+        await self._producer.send_and_wait(topic, json.dumps(payload, default=str).encode())
+        log.debug("kafka_emitted", topic=topic, event=payload.get("event"))

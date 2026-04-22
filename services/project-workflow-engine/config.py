@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     # Outbound
     kafka_topic_workflow_step_ready: str = "kama.workflow.step_ready"
     kafka_topic_workflow_completed: str = "kama.workflow.completed"
+    kafka_topic_ops_inbound_email: str = "kama.ops.inbound_email"
+    kafka_topic_comm_reply: str = "kama.comm.reply_received"
 
     # KAMA-net / Supabase
     kama_net_url: str = "https://nixakeaiibzhesdwtelw.supabase.co"
@@ -51,6 +53,17 @@ class Settings(BaseSettings):
     agent_id_procurement: str = ""
     agent_id_montage: str = ""
     agent_id_meldewesen: str = ""
+
+    # Agent Memory (Supabase Langzeitspeicher)
+    # Set SUPABASE_SERVICE_ROLE_KEY (Service Role secret, never expose to frontend).
+    # SUPABASE_URL defaults to kama_net_url if not set separately.
+    supabase_service_role_key: str = ""
+    agent_memory_enabled: bool = False
+    agent_memory_scope: str = "project-workflow-engine"
+    # Logical agent identifier written to memory tables (defaults to kafka group id)
+    agent_memory_agent_id: str = "kama-project-workflow-engine"
+    # Max memory items loaded on start
+    agent_memory_read_limit: int = 20
 
     debug: bool = False
 
