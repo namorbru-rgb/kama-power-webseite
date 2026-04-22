@@ -11,5 +11,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     debug: bool = False
 
+    # Supabase / KAMA-net — read-only (anon key only, never service-role key here)
+    supabase_url: str = "https://nixakeaiibzhesdwtelw.supabase.co"
+    supabase_anon_key: str = ""          # set via SUPABASE_ANON_KEY or KAMA_NET_API_KEY
+    supabase_timeout_sec: float = 10.0
+
 
 settings = Settings()

@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 import structlog
 
 from config import settings
-from routers import dashboard, grid_signals, projects, sites, vzev
+from routers import dashboard, grid_signals, projects, sites, supabase_views, vzev
 
 log = structlog.get_logger()
 
@@ -18,6 +18,8 @@ log = structlog.get_logger()
 async def lifespan(app: FastAPI):
     log.info("KAMA Energy API starting", debug=settings.debug)
     yield
+    import supabase_client
+    await supabase_client.close()
     log.info("KAMA Energy API shutting down")
 
 
@@ -41,6 +43,7 @@ app.include_router(grid_signals.router)
 app.include_router(vzev.router)
 app.include_router(dashboard.router)
 app.include_router(projects.router)
+app.include_router(supabase_views.router)
 
 
 @app.get("/health")
