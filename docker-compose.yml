@@ -250,15 +250,15 @@ services:
       KAFKA_TOPIC_COMM_SOP: kama.comm.sop_created
       KAFKA_TOPIC_PROCUREMENT_ORDERED: kama.procurement.ordered
       KAFKA_TOPIC_PROCUREMENT_DELIVERED: kama.procurement.delivered
-      SMTP_HOST: ${SMTP_HOST:-mail.kama-power.com}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USER: ${SMTP_USER:-puk@kama-power.com}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      SMTP_FROM: ${SMTP_FROM:-puk@kama-power.com}
-      IMAP_HOST: ${IMAP_HOST:-mail.kama-power.com}
-      IMAP_PORT: ${IMAP_PORT:-993}
-      IMAP_USER: ${IMAP_USER:-puk@kama-power.com}
-      IMAP_PASSWORD: ${IMAP_PASSWORD:-}
+      SMTP_HOST: ${COMM_SMTP_HOST:-smtp.hostinger.com}
+      SMTP_PORT: ${COMM_SMTP_PORT:-465}
+      SMTP_USER: ${COMM_SMTP_USER:-verwaltung@kama-power.com}
+      SMTP_PASSWORD: ${COMM_SMTP_PASSWORD:-}
+      SMTP_FROM: ${COMM_SMTP_FROM:-verwaltung@kama-power.com}
+      IMAP_HOST: ${COMM_IMAP_HOST:-imap.hostinger.com}
+      IMAP_PORT: ${COMM_IMAP_PORT:-993}
+      IMAP_USER: ${COMM_IMAP_USER:-verwaltung@kama-power.com}
+      IMAP_PASSWORD: ${COMM_IMAP_PASSWORD:-}
       IMAP_POLL_INTERVAL_SEC: ${IMAP_POLL_INTERVAL_SEC:-60}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_ROMAN_CHAT_ID: ${TELEGRAM_ROMAN_CHAT_ID:-}
@@ -295,13 +295,18 @@ services:
       KAFKA_TOPIC_OFFER_SENT: kama.sales.offer_sent
       KAFKA_TOPIC_ORDERS_CONFIRMED: kama.orders.confirmed
       KAFKA_TOPIC_COMM_SEND: kama.comm.send_request
+      KAFKA_TOPIC_SALES_INBOUND_EMAIL: kama.sales.inbound_email
       KAMA_NET_URL: ${KAMA_NET_URL:-https://nixakeaiibzhesdwtelw.supabase.co}
       KAMA_NET_API_KEY: ${KAMA_NET_API_KEY:-}
-      SMTP_HOST: ${SMTP_HOST:-mail.kama-power.com}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USER: ${SMTP_USER:-puk@kama-power.com}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      SMTP_FROM: ${SMTP_FROM:-puk@kama-power.com}
+      SMTP_HOST: ${SALES_SMTP_HOST:-smtp.hostinger.com}
+      SMTP_PORT: ${SALES_SMTP_PORT:-465}
+      SMTP_USER: ${SALES_SMTP_USER:-verkauf@kama-power.com}
+      SMTP_PASSWORD: ${SALES_SMTP_PASSWORD:-}
+      SMTP_FROM: ${SALES_SMTP_FROM:-verkauf@kama-power.com}
+      IMAP_HOST: ${SALES_IMAP_HOST:-imap.hostinger.com}
+      IMAP_PORT: ${SALES_IMAP_PORT:-993}
+      IMAP_USER: ${SALES_IMAP_USER:-verkauf@kama-power.com}
+      IMAP_PASSWORD: ${SALES_IMAP_PASSWORD:-}
       MIN_QUOTE_VALUE_CHF: ${MIN_QUOTE_VALUE_CHF:-5000}
       SERVED_CANTONS: ${SERVED_CANTONS:-}
       FOLLOWUP_DAYS_1: ${FOLLOWUP_DAYS_1:-7}
@@ -359,13 +364,27 @@ services:
       KAFKA_TOPIC_MONTAGE_COMPLETED: kama.montage.completed
       KAFKA_TOPIC_WORKFLOW_STEP_READY: kama.workflow.step_ready
       KAFKA_TOPIC_WORKFLOW_COMPLETED: kama.workflow.completed
+      KAFKA_TOPIC_OPS_INBOUND_EMAIL: kama.ops.inbound_email
+      KAFKA_TOPIC_COMM_REPLY: kama.comm.reply_received
       KAMA_NET_URL: ${KAMA_NET_URL:-https://nixakeaiibzhesdwtelw.supabase.co}
       KAMA_NET_API_KEY: ${KAMA_NET_API_KEY:-}
+      # Agent Memory (Supabase Langzeitspeicher) — service-role key, never anon
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      AGENT_MEMORY_ENABLED: ${AGENT_MEMORY_ENABLED:-false}
       PAPERCLIP_API_URL: ${PAPERCLIP_API_URL:-http://localhost:3100}
       PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-}
       PAPERCLIP_COMPANY_ID: ${PAPERCLIP_COMPANY_ID:-}
       PAPERCLIP_GOAL_ID: ${PAPERCLIP_GOAL_ID:-}
       PAPERCLIP_PROJECT_ID: ${PAPERCLIP_PROJECT_ID:-}
+      SMTP_HOST: ${WORKFLOW_SMTP_HOST:-smtp.hostinger.com}
+      SMTP_PORT: ${WORKFLOW_SMTP_PORT:-465}
+      SMTP_USER: ${WORKFLOW_SMTP_USER:-betrieb@kama-power.com}
+      SMTP_PASSWORD: ${WORKFLOW_SMTP_PASSWORD:-}
+      SMTP_FROM: ${WORKFLOW_SMTP_FROM:-betrieb@kama-power.com}
+      IMAP_HOST: ${WORKFLOW_IMAP_HOST:-imap.hostinger.com}
+      IMAP_PORT: ${WORKFLOW_IMAP_PORT:-993}
+      IMAP_USER: ${WORKFLOW_IMAP_USER:-betrieb@kama-power.com}
+      IMAP_PASSWORD: ${WORKFLOW_IMAP_PASSWORD:-}
       AGENT_ID_CEO: ${AGENT_ID_CEO:-}
       AGENT_ID_CTO: ${AGENT_ID_CTO:-}
       AGENT_ID_PROCUREMENT: ${AGENT_ID_PROCUREMENT:-}
