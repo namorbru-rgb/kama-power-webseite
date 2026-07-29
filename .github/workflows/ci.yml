@@ -65,3 +65,23 @@ jobs:
         run: docker build -t kama-edge-agent:ci services/edge-agent
       - name: Build Ingestor image
         run: docker build -t kama-ingestor:ci services/ingestor
+
+  section69-restore-drill:
+    name: Section 69 Restore Drill
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run Section 69 restore drill
+        run: npm run restore-drill:section69
+      - name: Upload Section 69 restore drill report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: section69-restore-drill-report
+          path: artifacts/kamaa-1737/section69-restore-drill-report.json
+          if-no-files-found: error
