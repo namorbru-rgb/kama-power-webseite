@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "restore-drill:section69": "node tools/kamaa_section69_restore_drill/restore-drill.mjs"
   },
   "dependencies": {
     "next": "14.2.3",
